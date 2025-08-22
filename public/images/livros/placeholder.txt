@@ -1,0 +1,10 @@
+# Pasta para imagens dos livros
+
+Para testar, você pode colocar as imagens reais aqui:
+- CapaLivro1Front.png
+- CapaLivro1Back.png  
+- CapaLivro2Front.jpg
+- CapaLivro2Back.jpg
+
+Ou usar as imagens placeholder que serão criadas automaticamente.
+

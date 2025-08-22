@@ -1,0 +1,18 @@
+<h2>🔔 Notificação Administrativa</h2>
+
+<p><strong>Assunto:</strong> {{subject}}</p>
+<p><strong>Data/Hora:</strong> {{timestamp}}</p>
+
+<div class="alert alert-info">
+    <strong>📝 Mensagem:</strong><br>
+    {{message}}
+</div>
+
+{{#if data}}
+<h3>📊 Dados Adicionais</h3>
+<div class="order-details">
+    <pre style="white-space: pre-wrap; font-size: 12px;">{{json data}}</pre>
+</div>
+{{/if}}
+
+<p><small>Esta é uma notificação automática do sistema Movase.</small></p>

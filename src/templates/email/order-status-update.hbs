@@ -1,0 +1,30 @@
+<h2>📦 Atualização do Pedido</h2>
+
+<p>Olá {{name}},</p>
+
+<p>{{message}}</p>
+
+<div class="order-details">
+    <h3>📋 Pedido #{{orderNumber}}</h3>
+    <p><strong>Status Atual:</strong> 
+        <span class="status-badge status-{{status}}">{{status}}</span>
+    </p>
+</div>
+
+{{#if trackingUrl}}
+<div class="alert alert-info">
+    <strong>📦 Acompanhe sua entrega:</strong>
+    <a href="{{trackingUrl}}" class="btn btn-secondary">Rastrear Pedido</a>
+</div>
+{{/if}}
+
+<p><strong>Status do pedido:</strong></p>
+<ul>
+    <li>✅ Pendente - Pedido recebido</li>
+    <li>💰 Pago - Pagamento confirmado</li>
+    <li>📦 Preparando - Pedido sendo preparado</li>
+    <li>🚚 Enviado - Pedido em trânsito</li>
+    <li>🎉 Entregue - Pedido entregue</li>
+</ul>
+
+<p><small>Você receberá atualizações automáticas sobre o progresso do seu pedido.</small></p>

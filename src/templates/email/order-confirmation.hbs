@@ -1,0 +1,46 @@
+<h2>✅ Pedido Confirmado!</h2>
+
+<p>Olá {{name}},</p>
+
+<p>Seu pedido foi confirmado com sucesso! Agradecemos sua compra.</p>
+
+<div class="order-details">
+    <h3>📋 Detalhes do Pedido</h3>
+    <p><strong>Número:</strong> #{{orderNumber}}</p>
+    <p><strong>Data:</strong> {{orderDate}}</p>
+    <p><strong>Total:</strong> R$ {{total}}</p>
+</div>
+
+{{#if items}}
+<h3>📚 Itens do Pedido</h3>
+<div class="order-details">
+    {{#each items}}
+    <div class="order-item">
+        <div>
+            <strong>{{this.titulo}}</strong><br>
+            <small>Quantidade: {{this.quantidade}}</small>
+        </div>
+        <div>
+            R$ {{this.precoFinal}}
+        </div>
+    </div>
+    {{/each}}
+</div>
+{{/if}}
+
+{{#if trackingUrl}}
+<div class="alert alert-info">
+    <strong>📦 Rastreamento:</strong>
+    <p>Seu pedido foi enviado! Acompanhe a entrega:</p>
+    <a href="{{trackingUrl}}" class="btn btn-secondary">Rastrear Pedido</a>
+</div>
+{{/if}}
+
+<p><strong>Próximos passos:</strong></p>
+<ul>
+    <li>📧 Você receberá atualizações por email</li>
+    <li>📱 Acompanhe o status na sua conta</li>
+    <li>📞 Em caso de dúvidas, entre em contato</li>
+</ul>
+
+<p><small>Obrigado por escolher a Movase! 📚</small></p>
