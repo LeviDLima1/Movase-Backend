@@ -9,7 +9,17 @@ jest.mock('../../controllers/AuthController.js', () => {
   return jest.fn().mockImplementation(() => ({
     login: jest.fn(),
     register: jest.fn(),
-    me: jest.fn()
+    me: jest.fn(),
+    forgotPassword: jest.fn(),
+    resetPassword: jest.fn(),
+    checkEmail: jest.fn(),
+    checkPhone: jest.fn(),
+    checkCPF: jest.fn(),
+    updateProfile: jest.fn(),
+    changePassword: jest.fn(),
+    logout: jest.fn(),
+    verifyEmail: jest.fn(),
+    resendVerification: jest.fn()
   }));
 });
 
@@ -17,7 +27,23 @@ jest.mock('../../controllers/BookController.js', () => {
   return jest.fn().mockImplementation(() => ({
     listBooks: jest.fn(),
     getBookById: jest.fn(),
-    createBook: jest.fn()
+    createBook: jest.fn(),
+    updateBook: jest.fn(),
+    deleteBook: jest.fn(),
+    getBooksByCategory: jest.fn(),
+    getBooksByAuthor: jest.fn(),
+    getFeaturedBooks: jest.fn(),
+    getNewBooks: jest.fn(),
+    getPromotionalBooks: jest.fn(),
+    getSimilarBooks: jest.fn(),
+    getBooksByTags: jest.fn(),
+    updateRating: jest.fn(),
+    updateStock: jest.fn(),
+    getBookStats: jest.fn(),
+    findWithAssociations: jest.fn(),
+    findByCriteria: jest.fn(),
+    count: jest.fn(),
+    getBookImages: jest.fn()
   }));
 });
 
@@ -30,7 +56,14 @@ jest.mock('../../controllers/CartController.js', () => {
     clearCart: jest.fn(),
     recalculateCart: jest.fn(),
     getCartSummary: jest.fn(),
-    validateCart: jest.fn()
+    validateCart: jest.fn(),
+    applyCoupon: jest.fn(),
+    removeCoupon: jest.fn(),
+    mergeCarts: jest.fn(),
+    saveForLater: jest.fn(),
+    getSavedItems: jest.fn(),
+    moveToCart: jest.fn(),
+    removeSavedItem: jest.fn()
   }));
 });
 
