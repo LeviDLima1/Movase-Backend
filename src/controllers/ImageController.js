@@ -2,6 +2,7 @@ import BaseController from './BaseController.js';
 import Image from '../model/Image.js';
 import ResponseHandler from '../utils/responseHandler.js';
 import asyncHandler from '../utils/asyncHandler.js';
+import ImageOptimizationService from '../services/imageOptimizationService.js';
 
 class ImageController extends BaseController {
   constructor() {
@@ -16,7 +17,7 @@ class ImageController extends BaseController {
       }
 
       const { originalname, mimetype, size, buffer } = req.file;
-      const { entityType, entityId, imageType, alt, description, tags } = req.body;
+      const { entityType, entityId, imageType, alt, description, tags, optimize = 'true' } = req.body;
 
       // Validar tipo MIME
       if (!mimetype.startsWith('image/')) {
@@ -28,12 +29,42 @@ class ImageController extends BaseController {
         return ResponseHandler.badRequest(res, 'Imagem muito grande (máximo 5MB)');
       }
 
+      // Validar imagem usando Sharp
+      const validation = await ImageOptimizationService.validateImage(buffer);
+      if (!validation.isValid) {
+        return ResponseHandler.badRequest(res, `Imagem inválida: ${validation.error}`);
+      }
+
+      let processedImage = buffer;
+      let processedSize = size;
+      let processedMimeType = mimetype;
+
+      // Otimizar imagem se solicitado
+      if (optimize === 'true') {
+        try {
+          const optimizationResult = await ImageOptimizationService.optimizeImage(buffer, {
+            quality: 80,
+            maxWidth: 1200,
+            maxHeight: 1200,
+            format: 'jpeg'
+          });
+          
+          processedImage = optimizationResult.buffer;
+          processedSize = optimizationResult.size;
+          processedMimeType = `image/${optimizationResult.format}`;
+          
+          console.log(`✅ Imagem otimizada: ${size} -> ${processedSize} bytes (${((size - processedSize) / size * 100).toFixed(1)}% redução)`);
+        } catch (error) {
+          console.error('⚠️ Erro na otimização, usando imagem original:', error.message);
+        }
+      }
+
       // Criar imagem no banco
       const image = await Image.create({
         originalName: originalname,
-        mimeType: mimetype,
-        size: size,
-        data: buffer,
+        mimeType: processedMimeType,
+        size: processedSize,
+        data: processedImage,
         entityType: entityType || 'general',
         entityId: entityId || null,
         imageType: imageType || 'gallery',
@@ -77,8 +108,38 @@ class ImageController extends BaseController {
         return ResponseHandler.forbidden(res, 'Acesso negado');
       }
 
-      // Configurar headers
-      const contentType = image.mimeType || 'image/png'; // Fallback para PNG
+      // Configurar headers com fallback robusto para Content-Type
+      let contentType = image.mimeType;
+      
+      // Se mimeType é null, vazio ou inválido, tentar detectar pelo nome do arquivo
+      if (!contentType || contentType.trim() === '') {
+        const fileName = image.originalName || image.filename || '';
+        const extension = fileName.split('.').pop()?.toLowerCase();
+        
+        switch (extension) {
+          case 'jpg':
+          case 'jpeg':
+            contentType = 'image/jpeg';
+            break;
+          case 'png':
+            contentType = 'image/png';
+            break;
+          case 'gif':
+            contentType = 'image/gif';
+            break;
+          case 'webp':
+            contentType = 'image/webp';
+            break;
+          case 'svg':
+            contentType = 'image/svg+xml';
+            break;
+          default:
+            contentType = 'image/png'; // Fallback padrão
+        }
+        
+        // Content-Type detectado automaticamente
+      }
+      
       res.set({
         'Content-Type': contentType,
         'Content-Length': image.size,
@@ -117,16 +178,36 @@ class ImageController extends BaseController {
         return ResponseHandler.forbidden(res, 'Acesso negado');
       }
 
-      // TODO: Implementar geração de thumbnail com sharp
-      // Por enquanto, retorna a imagem original
-      const contentType = image.mimeType || 'image/png'; // Fallback para PNG
-      res.set({
-        'Content-Type': contentType,
-        'Content-Length': image.size,
-        'Cache-Control': 'public, max-age=31536000'
-      });
+      // Gerar thumbnail usando Sharp
+      try {
+        const thumbnailResult = await ImageOptimizationService.generateThumbnail(image.data, {
+          width: parseInt(w),
+          height: parseInt(h),
+          quality: 70,
+          format: 'jpeg'
+        });
 
-      return res.send(image.data);
+        res.set({
+          'Content-Type': `image/${thumbnailResult.format}`,
+          'Content-Length': thumbnailResult.size,
+          'Cache-Control': 'public, max-age=31536000',
+          'X-Original-Size': image.size,
+          'X-Thumbnail-Size': thumbnailResult.size
+        });
+
+        return res.send(thumbnailResult.buffer);
+      } catch (error) {
+        console.error('Erro na geração de thumbnail:', error);
+        
+        // Fallback: retornar imagem original redimensionada
+        res.set({
+          'Content-Type': image.mimeType || 'image/jpeg',
+          'Content-Length': image.size,
+          'Cache-Control': 'public, max-age=31536000'
+        });
+
+        return res.send(image.data);
+      }
 
     } catch (error) {
       console.error('Erro ao gerar thumbnail:', error);

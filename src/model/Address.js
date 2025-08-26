@@ -33,14 +33,14 @@ const Address = connection.define('Address', {
   // ===== INFORMAÇÕES DO ENDEREÇO =====
   
   cep: {
-    type: DataTypes.STRING(8),    // CEP tem 8 dígitos
+    type: DataTypes.STRING(9),    // CEP pode ter 8 dígitos ou 9 com hífen
     allowNull: false,
     validate: {
       notEmpty: true,
-      len: [8, 8],               // Exatamente 8 caracteres
-      is: /^\d{8}$/              // Regex: apenas números
+      len: [8, 9],               // 8 dígitos ou 9 com hífen
+      is: /^\d{5}-?\d{3}$/       // Regex: 5 dígitos, hífen opcional, 3 dígitos
     },
-    comment: 'CEP do endereço (apenas números)'
+    comment: 'CEP do endereço (formato: 01310-100 ou 01310100)'
   },
 
   logradouro: {
@@ -170,7 +170,7 @@ const Address = connection.define('Address', {
   hooks: {
     // Antes de salvar, formatar CEP
     beforeSave: (address) => {
-      // Remover caracteres não numéricos do CEP
+      // Normalizar CEP: remover hífen e caracteres não numéricos
       if (address.cep) {
         address.cep = address.cep.replace(/\D/g, '');
       }

@@ -44,7 +44,7 @@ const Purchases = connection.define('Purchases', {
   
   numero: {
     type: DataTypes.STRING(50),
-    allowNull: false,
+    allowNull: true, // Temporariamente true para permitir que o hook preencha
     unique: true,
     validate: {
       notEmpty: true,
@@ -248,7 +248,8 @@ const Purchases = connection.define('Purchases', {
       console.log('🔧 Hook beforeCreate executado');
       console.log('📋 Purchase data:', purchase.dataValues);
       
-      if (!purchase.numero) {
+      // Sempre gerar número se não existir ou estiver vazio
+      if (!purchase.numero || purchase.numero.trim() === '') {
         const data = new Date();
         const ano = data.getFullYear();
         const mes = String(data.getMonth() + 1).padStart(2, '0');

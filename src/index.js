@@ -17,6 +17,11 @@ import './model/Cart.js';
 import './model/Purchases.js';
 import './model/PurchaseItems.js';
 import './model/Image.js';
+import './model/NF.js';
+import './model/CardsSaved.js';
+
+// Importar e definir associações entre modelos
+import { defineAssociations } from './model/associations.js';
 
 // Carregar variáveis de ambiente
 dotenv.config();
@@ -28,8 +33,11 @@ const app = express();
 // Logging de requisições
 app.use(ErrorHandler.requestLogger);
 
-// Segurança
-app.use(ErrorHandler.security());
+// Segurança avançada
+import { helmetConfig, sanitizeInput, customSecurityHeaders } from './middleware/securityMiddleware.js';
+app.use(helmetConfig);
+app.use(customSecurityHeaders);
+app.use(sanitizeInput);
 
 // Servir arquivos estáticos (imagens)
 app.use('/api/images', express.static('public/images'));
@@ -40,8 +48,9 @@ app.use(ErrorHandler.cors());
 // Timeout de requisições (30 segundos)
 app.use(ErrorHandler.timeout(30000));
 
-// Rate limiting básico
-app.use(ErrorHandler.rateLimit(100, 15 * 60 * 1000));
+// Rate limiting avançado
+import { routeBasedRateLimit } from './middleware/rateLimitMiddleware.js';
+app.use(routeBasedRateLimit);
 
 // ===== PARSERS =====
 

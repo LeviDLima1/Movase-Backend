@@ -334,24 +334,28 @@ class CartController extends BaseController {
    * Recalcular totais do carrinho
    */
   async recalculateCart(cart) {
-    // Calcular subtotal
-    const subtotal = cart.items.reduce((sum, item) => sum + item.subtotal, 0);
+    // Calcular subtotal com conversão segura para números
+    const subtotal = cart.items.reduce((sum, item) => {
+      const itemSubtotal = parseFloat(item.subtotal) || 0;
+      return sum + itemSubtotal;
+    }, 0);
 
     // Aplicar desconto do cupom se existir
     let desconto = 0;
     if (cart.cupomDesconto) {
-      desconto = parseFloat(cart.cupomDesconto);
+      desconto = parseFloat(cart.cupomDesconto) || 0;
     }
 
     // Calcular total
-    const total = subtotal + parseFloat(cart.frete || 0) - desconto;
+    const frete = parseFloat(cart.frete) || 0;
+    const total = subtotal + frete - desconto;
 
     // Atualizar carrinho (incluindo os items!)
     await cart.update({
       items: cart.items,  // ⭐ IMPORTANTE: Salvar os items também!
-      subtotal,
-      desconto,
-      total
+      subtotal: parseFloat(subtotal.toFixed(2)),
+      desconto: parseFloat(desconto.toFixed(2)),
+      total: parseFloat(total.toFixed(2))
     });
   }
 

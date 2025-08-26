@@ -143,12 +143,17 @@ Cart.beforeSave(async (cart) => {
   // Calcular subtotal dos itens
   if (cart.items && Array.isArray(cart.items)) {
     cart.subtotal = cart.items.reduce((total, item) => {
-      return total + (item.preco * item.quantidade);
+      // Usar subtotal se disponível, senão calcular
+      const itemSubtotal = item.subtotal || (parseFloat(item.preco) * item.quantidade);
+      return total + parseFloat(itemSubtotal);
     }, 0);
   }
 
   // Calcular total final
-  cart.total = cart.subtotal + cart.frete - cart.desconto;
+  const subtotal = parseFloat(cart.subtotal) || 0;
+  const frete = parseFloat(cart.frete) || 0;
+  const desconto = parseFloat(cart.desconto) || 0;
+  cart.total = subtotal + frete - desconto;
 
   // Definir data de expiração (30 dias)
   if (!cart.expiraEm) {
