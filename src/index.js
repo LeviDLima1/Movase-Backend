@@ -86,6 +86,56 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Rota temporária para admin sem autenticação
+app.get('/api/admin/users', async (req, res) => {
+  try {
+    // Importar modelos dinamicamente
+    const User = (await import('./model/User.js')).default;
+    const Address = (await import('./model/Address.js')).default;
+    const Purchase = (await import('./model/Purchases.js')).default;
+    
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+
+    const users = await User.findAndCountAll({
+      limit,
+      offset,
+      order: [['createdAt', 'DESC']],
+      include: [
+        {
+          model: Address,
+          as: 'addresses',
+          required: false
+        },
+        {
+          model: Purchase,
+          as: 'purchases',
+          required: false
+        }
+      ]
+    });
+
+    res.json({
+      success: true,
+      data: users.rows,
+      pagination: {
+        page,
+        limit,
+        total: users.count,
+        totalPages: Math.ceil(users.count / limit)
+      }
+    });
+  } catch (error) {
+    console.error('Erro ao buscar usuários:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro interno do servidor',
+      error: error.message
+    });
+  }
+});
+
 /**
  * @swagger
  * /:

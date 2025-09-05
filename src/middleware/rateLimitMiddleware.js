@@ -210,6 +210,11 @@ export const routeBasedRateLimit = (req, res, next) => {
     return registerLimiter(req, res, next);
   }
   
+  // Rota pública temporária para admin (sem autenticação)
+  if (path.startsWith('/api/users/admin')) {
+    return globalLimiter(req, res, next);
+  }
+  
   if (path.startsWith('/api/images/upload')) {
     return uploadLimiter(req, res, next);
   }
